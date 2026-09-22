@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Think Before You Reply - Digital Advocacy Game</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .game-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background: linear-gradient(135deg, #1877f2, #0056b3);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 1.4rem;
+            margin-bottom: 5px;
+        }
+        .meter-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .progress-bar {
+            width: 60%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 100%;
+            background: #4caf50;
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        .chat-box {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .message {
+            background: #e4e6eb;
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 85%;
+            line-height: 1.4;
+            font-size: 0.95rem;
+            color: #050505;
+        }
+        .message.system {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+            align-self: center;
+            text-align: center;
+            font-size: 0.85rem;
+            max-width: 100%;
+        }
+        .options-container {
+            padding: 15px 20px 20px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .btn-option {
+            background: #ffffff;
+            border: 2px solid #1877f2;
+            color: #1877f2;
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+        .btn-option:hover {
+            background: #1877f2;
+            color: white;
+        }
+        .survey-container {
+            display: none;
+            padding: 20px;
+        }
+        .survey-container h2 {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+            color: #1c1e21;
+        }
+        .survey-question {
+            margin-bottom: 15px;
+        }
+        .survey-question p {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        .survey-question select, .survey-question input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        .btn-submit {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .btn-submit:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="header">
+        <h1>Think Before You Reply 💬</h1>
+        <p style="font-size: 0.8rem; opacity: 0.9;">Digital Advocacy Simulation Game</p>
+        <div class="meter-container">
+            <span>Reputasi Digitalku:</span>
+            <div class="progress-bar">
+                <div id="karma-fill" class="progress-fill"></div>
+            </div>
+            <span id="karma-score">100%</span>
+        </div>
+    </div>
+
+    <!-- Gameplay Area -->
+    <div id="game-screen">
+        <div class="chat-box" id="chat-box">
+            <!-- Pesan skenario dinamik muncul di sini -->
+        </div>
+        <div class="options-container" id="options-box">
+            <!-- Pilihan jawaban muncul di sini -->
+        </div>
+    </div>
+
+    <!-- Result & Survey Area -->
+    <div id="survey-screen" class="survey-container">
+        <h2>🎉 Skenario Selesai!</h2>
+        <p id="final-status" style="margin-bottom: 15px; font-weight: 500;"></p>
+        <hr style="margin-bottom: 15px;">
+        
+        <h3>Survei Singkat Riset Advokasi</h3>
+        <p style="font-size: 0.8rem; color: #666; margin-bottom: 15px;">Bantu tim kami mengumpulkan data dampak komunikasi digital.</p>
+
+        <form id="advocacy-form" onsubmit="submitForm(event)">
+            <div class="survey-question">
+                <p>1. Apakah kamu pernah menjadi korban/melihat aksi Doxxing/Bullying digital?</p>
+                <select required>
+                    <option value="">-- Pilih --</option>
+                    <option value="pernah">Pernah</option>
+                    <option value="tidak">Tidak Pernah</option>
+                </select>
+            </div>
+            <div class="survey-question">
+                <p>2. Menurutmu, perilaku digital mana yang paling merugikan?</p>
+                <select required>
+                    <option value="">-- Pilih --</option>
+                    <option value="doxxing">Penyebaran Data Pribadi (Doxxing)</option>
+                    <option value="hoax">Penyebaran Berita Buatan/Hoaks</option>
+                    <option value="bullying">Komentar Kebencian / Perundungan</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-submit">Kirim Hasil & Selesai</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    let karma = 100;
+    let currentStep = 0;
+
+    const scenarios = [
+        {
+            sender: "Grup WA Kelas 📱",
+            text: "Viral! Ada postingan orang yang dituduh nabrak kucing di jalan. Ada akun membagikan foto KTP, alamat rumah, dan No HP terduga pelaku. Netizen ngajak 'teror' nomornya!",
+            options: [
+                { text: "📌 Ikut sebarkan kontak/alamatnya ke grup lain biar kapok.", karmaChange: -30, feedback: "❌ Kamu terlibat tindakan DOXXING! Ternyata informasi itu salah alamat. Orang tidak bersalah menjadi korban teror massa." },
+                { text: "🚨 Laporkan (report) postingan tersebut & ingatkan agar tidak main hakim sendiri.", karmaChange: 10, feedback: "✅ Luar biasa! Kamu mencegah penyebaran data pribadi dan melindungi keamanan seseorang." }
+            ]
+        },
+        {
+            sender: "Komentar Instagram 📸",
+            text: "Seorang teman mengunggah karya lukisannya. Tapi hasilnya terlihat tidak rapi. Kolom komentar mulai ramai diejek oleh netizen.",
+            options: [
+                { text: "🔥 Tulis komentar: 'Jelek banget wkwk mending hapus deh.'", karmaChange: -30, feedback: "❌ Komentarmu adalah bentuk Cyberbullying. Hal itu merusak mental dan rasa percaya diri pembuat karya." },
+                { text: "💙 Berikan komentar apresiasi atas usahanya atau beri kritik yang sopan.", karmaChange: 10, feedback: "✅ Bijak! Kamu membantu menciptakan lingkungan ruang digital yang aman dan ramah." }
+            ]
+        },
+        {
+            sender: "Voice Note Masuk 🎙️",
+            text: "Seseorang mengirimkan rekaman suara samar-samar yang mengklaim bahwa pengurus organisasi kampus korupsi uang kas.",
+            options: [
+                { text: "🔁 Langsung forward vn ini ke grup obrolan lain agar semua tahu.", karmaChange: -30, feedback: "❌ Rekaman itu hasil manipulasi AI (Deepfake). Kamu menyebarkan fitnah dan merusak nama baik orang lain." },
+                { text: "🔍 Tanya sumber rekaman secara privat dan minta verifikasi sebelum percaya.", karmaChange: 10, feedback: "✅ Tepat! Berpikir kritis sebelum bereaksi mencegah terjadinya pencemaran nama baik." }
+            ]
+        }
+    ];
+
+    function updateKarma(amount) {
+        karma = Math.min(100, Math.max(0, karma + amount));
+        document.getElementById("karma-score").innerText = karma + "%";
+        const fill = document.getElementById("karma-fill");
+        fill.style.width = karma + "%";
+        
+        if (karma > 70) fill.style.backgroundColor = "#4caf50";
+        else if (karma > 40) fill.style.backgroundColor = "#ff9800";
+        else fill.style.backgroundColor = "#f44336";
+    }
+
+    function renderScenario() {
+        if (currentStep >= scenarios.length) {
+            endGame();
+            return;
+        }
+
+        const data = scenarios[currentStep];
+        const chatBox = document.getElementById("chat-box");
+        const optionsBox = document.getElementById("options-box");
+
+        chatBox.innerHTML = `
+            <div class="message system"><b>${data.sender}</b></div>
+            <div class="message">${data.text}</div>
+        `;
+
+        optionsBox.innerHTML = "";
+        data.options.forEach((opt) => {
+            const btn = document.createElement("button");
+            btn.className = "btn-option";
+            btn.innerText = opt.text;
+            btn.onclick = () => selectOption(opt);
+            optionsBox.appendChild(btn);
+        });
+    }
+
+    function selectOption(option) {
+        updateKarma(option.karmaChange);
+        const chatBox = document.getElementById("chat-box");
+        
+        const feedbackEl = document.createElement("div");
+        feedbackEl.className = "message system";
+        feedbackEl.style.marginTop = "10px";
+        feedbackEl.innerHTML = option.feedback;
+        chatBox.appendChild(feedbackEl);
+
+        document.getElementById("options-box").innerHTML = "";
+
+        setTimeout(() => {
+            currentStep++;
+            renderScenario();
+        }, 2500);
+    }
+
+    function endGame() {
+        document.getElementById("game-screen").style.display = "none";
+        document.getElementById("survey-screen").style.display = "block";
+        
+        let status = "";
+        if (karma >= 80) status = "🛡️ **Predikat: Champion Digital Citizen**<br>Kamu sangat bijak dan selalu berpikir sebelum bertindak di media sosial.";
+        else if (karma >= 50) status = "⚠️ **Predikat: Netizen Imparsial**<br>Kamu cukup baik, namun kadang masih bisa terpengaruh impulsivitas.";
+        else status = "🚨 **Predikat: Digital Hazard**<br>Keputusanmu di ruang digital berisiko tinggi merugikan orang lain!";
+
+        document.getElementById("final-status").innerHTML = status;
+    }
+
+    function submitForm(e) {
+        e.preventDefault();
+        alert("Terima kasih telah berpartisipasi dalam survei advokasi digital ini!");
+        location.reload();
+    }
+
+    // Start Game
+    renderScenario();
+</script>
+</body>
+</html>
